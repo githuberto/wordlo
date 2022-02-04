@@ -1,4 +1,4 @@
-from wordlo_util import Game, WordBasket, Counter
+from util import Game, WordBasket, Counter
 
 
 def game_tests():

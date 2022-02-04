@@ -3,7 +3,7 @@ import argparse
 import discord
 import asyncio
 import enchant
-from wordlo_util import Game, WordBasket, Counter
+from util import Game, WordBasket, Counter
 
 
 WARNING_DELAY = 4
