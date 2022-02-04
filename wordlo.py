@@ -74,7 +74,7 @@ class Wordlo(discord.Client):
                 > Guess the secret word within 6 tries to win!
              """
       embed = discord.Embed(type="rich",
-                            description="Play the original game here: https://www.powerlanguage.co.uk/wordle/.",
+                            description="Play the original game here: https://www.powerlanguage.co.uk/wordle/",
                             colour=discord.Colour.blue())
       await message.reply(help, embed=embed)
 
