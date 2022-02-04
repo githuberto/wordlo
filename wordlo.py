@@ -85,6 +85,14 @@ class Wordlo(discord.Client):
       await self.next_turn(message)
 
   async def new_game(self, message):
+    tokens = message.content.split(" ")
+    length = 5
+    if len(tokens) > 1 and tokens[1].isdigit():
+      length = int(tokens[1])
+      if length < 5 or length > 8:
+        await self.warn_delete("Length must be within the range of 5-8 letters.", message)
+        return
+
     users = {user for user in message.mentions}
     users.add(message.author)
     if (message.content != f"{self.prefix}wordlo"
@@ -97,8 +105,8 @@ class Wordlo(discord.Client):
       await self.warn_delete(f"An active game already exists for the following player(s): {names}! Type `{self.prefix}quit` to quit.", message)
       return
 
-    secret_word = self.word_basket.next_word()
-    game = Game(secret_word, self.counter.next_number(), users)
+    secret_word = self.word_basket.next_word(length)
+    game = Game(secret_word, self.counter.next_number(), users, length)
 
     board_message = await self.print_board(game, message, None)
     for user in users:
@@ -114,16 +122,16 @@ class Wordlo(discord.Client):
           message)
       return
 
+    game, board_message = self.players[aid]
+
     word = message.content[1:].lower()
-    if len(word) != 5:
-      await self.warn_delete("Your word must be exactly 5 letters long!", message)
+    if len(word) != game.length:
+      await self.warn_delete(f"Your word must be exactly {game.length} letters long!", message)
       return
 
     if not dictionary.check(word) and not self.word_basket.check(word):
       await self.warn_delete(f"Sorry, {word} is not in my dictionary.", message)
       return
-
-    game, board_message = self.players[aid]
 
     await message.delete(delay=DELETE_DELAY)
 
@@ -149,19 +157,24 @@ class Wordlo(discord.Client):
                           colour=discord.Colour.random())
     embed.set_author(name=f"Game #{game.game_number()}",
                      icon_url=str(message.author.avatar_url))
+    names = ", ".join(user.mention for user in game.users)
+    # embed.title = f"Players: {names}"
+    player_names = f"Players: {names}\n"
+    footer = ""
     if aborted:
-      embed.set_footer(text=f"Game aborted. {PENSIVE_EMOJI}")
+      footer = f"Game aborted. {PENSIVE_EMOJI}"
     elif game.won():
-      embed.set_footer(text=f"YOU WIN!")
+      footer = f"YOU WIN!"
     elif game.lost():
-      embed.set_footer(text=f"GAME OVER! The word was `{game.secret()}`.")
+      footer = f"GAME OVER! The word was `{game.secret()}`."
     else:
       text = ""
       if game.turns_left() == 1:
-        text = "1 guess left!"
+        footer = "1 guess left!"
       else:
-        text = f"{game.turns_left()} guesses left!"
-      embed.set_footer(text=text)
+        footer = f"{game.turns_left()} guesses left!"
+    embed.set_footer(text=footer)
+    embed.description = player_names + "\n" + embed.description
     if board_message is None:
       return await message.channel.send(embed=embed)
     return await board_message.edit(embed=embed)
@@ -183,7 +196,7 @@ if __name__ == "__main__":
   parser.add_argument(
       "--prefix", default="!", help="The channel for bot readings.")
   parser.add_argument(
-      "--word_basket", default="10k_fivers.txt", help="The basket of secret words.")
+      "--word_basket", default="filtered_common_words.txt", help="The basket of secret words.")
   parser.add_argument(
       "--counter_file", default="wordlo_count.txt",
       help="The file containing the number of games played.")

@@ -36,8 +36,11 @@ class WordBasket:
       self.words = [l.strip() for l in f.readlines()]
     print(f"Successfully read words from {filename}.")
 
-  def next_word(self):
-    return random.choice(self.words)
+  def next_word(self, length):
+    word = ""
+    while len(word) != length:
+      word = random.choice(self.words)
+    return word
 
   def check(self, word):
     return word in self.words
@@ -47,7 +50,7 @@ class Board:
   def __init__(self, word_length, size):
     self.word_length = word_length
     self.current = 0
-    self.words = ["     " for _ in range(size)]
+    self.words = [" " * word_length for _ in range(size)]
 
   def add_guess(self, guess):
     if self.full():
@@ -70,13 +73,14 @@ class Board:
 
 
 class Game:
-  def __init__(self, secret_word, number, users):
-    self.board = Board(5, 6)
+  def __init__(self, secret_word, number, users, length):
+    self.board = Board(length, 6)
     self.secret_word = secret_word
     self.number = number
     self.users = users
     self.has_won = False
     self.has_lost = False
+    self.length = length
 
   def game_number(self):
     return self.number
@@ -106,7 +110,7 @@ class Game:
     return self.board.turns_left()
 
   def get_colors(self, guess):
-    if guess == "     ":
+    if " " in guess:
       return [UNKNOWN_SQUARE for _ in guess]
 
     counts = {gc: self.secret_word.count(gc) for gc in guess}
