@@ -62,7 +62,7 @@ class Wordlo(discord.Client):
                 > Guess the secret word within 6 tries to win!
                 > 
                 > Play the original game here: https://www.powerlanguage.co.uk/wordle/.
-                """
+             """
       await message.reply(help)
 
   async def on_message(self, message):
@@ -97,11 +97,9 @@ class Wordlo(discord.Client):
       await self.warn_delete(f"An active game already exists for the following player(s): {names}! Type `{self.prefix}quit` to quit.", message)
       return
 
-
     secret_word = self.word_basket.next_word()
     game = Game(secret_word, self.counter.next_number(), users)
 
-    # print(f"The secret word is {secret_word}.")
     board_message = await self.print_board(game, message, None)
     for user in users:
       self.players[user.id] = (game, board_message)
@@ -110,7 +108,6 @@ class Wordlo(discord.Client):
   async def next_turn(self, message):
     aid = message.author.id
 
-    # Check co-op.
     if aid not in self.players:
       await self.warn_delete(
           f"To start a new game, type: `{self.prefix}`wordlo. Type `&help` for more information.",
@@ -201,7 +198,6 @@ if __name__ == "__main__":
 
   counter = Counter(args.counter_file)
 
-  # By default, guild, channel, and prefix are unused.
   intents = discord.Intents.default()
   bot = Wordlo(intents, args.guild, args.channel, args.prefix, word_basket, dictionary, counter)
   bot.run(discord_token)

@@ -1,5 +1,6 @@
 import random
 
+
 UNKNOWN_SQUARE = ":grey_question:"
 PERFECT_SQUARE = ":heart_eyes:"
 MATCHING_SQUARE = ":smile:"
