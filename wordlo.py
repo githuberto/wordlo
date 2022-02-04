@@ -47,23 +47,36 @@ class Wordlo(discord.Client):
       help = f"""
                 > Wordlo is a clone of the puzzle game Wordle. 
                 > 
-                > Commands:
-                > `{self.prefix}wordlo` - Start a singleplayer game.
-                > `{self.prefix}wordlo @otheruser @otherotheruser` - Start a co-op game.
-                > `{self.prefix}<word>` - Guess a word in an active game. e.g., `&horse`.
-                > `{self.prefix}quit` - Abort an active game.
-                > `{self.prefix}help` - Display this help message.
+                > **Commands:**
+                > :speech_balloon: `{self.prefix}wordlo [length] [co-op users]`
+                > Start a new game.
+                > * `length` - An optional field to customize word length (5-8).
+                > * `co-op users` - An optional field that allows mentioned users to play with you.
+                > :speech_balloon: `{self.prefix}<word>`
+                > Guess a word in an active game, e.g., `{self.prefix}horse`.
+                > :speech_balloon: `{self.prefix}quit`
+                > Abort an active game.
+                > :speech_balloon: `{self.prefix}help`
+                > Display this help message.
                 > 
+                > **Examples:**
+                > * `{self.prefix}wordlo`
+                > * `{self.prefix}wordlo 7`
+                > * `{self.prefix}wordlo @Alice @Bob`
+                > * `{self.prefix}wordlo 7 @Alice @Bob`
+                > 
+                > **How to Play**
                 > You have 6 tries to discover the secret word. Each guess must be a 5 letter English word. The emojis that appear above your guess will give you hints about the secret word:
                 > :thinking: - the letter below is not in the secret word.
                 > :smile: - the letter below is in the secret word, but in a different position.
                 > :heart_eyes: - the letter below in the same position in the secret word.
                 > 
                 > Guess the secret word within 6 tries to win!
-                > 
-                > Play the original game here: https://www.powerlanguage.co.uk/wordle/.
              """
-      await message.reply(help)
+      embed = discord.Embed(type="rich",
+                            description="Play the original game here: https://www.powerlanguage.co.uk/wordle/.",
+                            colour=discord.Colour.blue())
+      await message.reply(help, embed=embed)
 
   async def on_message(self, message):
     if not self.channel:
