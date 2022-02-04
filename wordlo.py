@@ -209,9 +209,9 @@ if __name__ == "__main__":
   parser.add_argument(
       "--prefix", default="!", help="The channel for bot readings.")
   parser.add_argument(
-      "--word_basket", default="filtered_common_words.txt", help="The basket of secret words.")
+      "--word_basket", default="data/filtered_common_words.txt", help="The basket of secret words.")
   parser.add_argument(
-      "--counter_file", default="wordlo_count.txt",
+      "--counter_file", default="data/wordlo_count.txt",
       help="The file containing the number of games played.")
   args = parser.parse_args()
 
