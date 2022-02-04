@@ -7,7 +7,11 @@ Wordlo is a clone of the puzzle game [Wordle](https://www.powerlanguage.co.uk/wo
 ## Commands:
 `!wordlo` - Start a singleplayer game.
 
-`!wordlo @otheruser @otherotheruser` - Start a co-op game.
+`!wordlo @Alice @Bob` - Start a co-op game.
+
+`!wordlo 7` - Start a game with a custom word length of 7.
+
+`!wordlo 7 @Alice @Bob` - Start a co-op game with a custom word length of 7.
 
 `!<word>` - Guess a word in an active game. e.g., `&horse`.
 
