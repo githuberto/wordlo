@@ -3,7 +3,9 @@ import argparse
 import discord
 import asyncio
 import enchant
-from util import Game, WordBasket, Counter
+from util import Game, WordBasket
+from stats_tracker import StatsTracker
+from db import DbWrapper
 
 
 WARNING_DELAY = 4
@@ -14,7 +16,7 @@ PENSIVE_EMOJI="😔"
 
 
 class Wordlo(discord.Client):
-  def __init__(self, intents, guild_name, channel_name, prefix, word_basket, dictionary, counter):
+  def __init__(self, intents, guild_name, channel_name, prefix, word_basket, dictionary, stats_tracker):
     super(Wordlo, self).__init__(intents=intents)
     self.players = {}
     self.prefix = prefix
@@ -22,7 +24,7 @@ class Wordlo(discord.Client):
     self.dictionary = dictionary
     self.guild_name = guild_name
     self.channel_name = channel_name
-    self.counter = counter
+    self.stats_tracker = stats_tracker
 
     self.guild = None
     self.channel = None
@@ -78,6 +80,55 @@ class Wordlo(discord.Client):
                             colour=discord.Colour.blue())
       await message.reply(help, embed=embed)
 
+  def create_stat_message(self, stats):
+    msg = f"""
+    **Wins: ** `{stats["wins"]}`
+    **Losses: ** `{stats["losses"]}`
+    **Total: ** `{stats["total_games"]}`
+    **Winrate: ** `{100 * (stats["wins"] / stats["total_games"]):.1f}%`
+    """
+
+    rows = []
+    num_to_word = {
+        1: "one",
+        2: "two",
+        3: "three",
+        4: "four",
+        5: "five",
+        6: "six"
+    }
+    for i in range(1, 7):
+      wins = stats[f"wins_{i}"]
+      blocks = round(10 * wins / stats["wins"])
+      rows.append(f":{num_to_word[i]}: `({wins})`   {''.join(':green_square:' for _ in range(blocks))}")
+    msg += "\n".join(rows)
+    # :1:: 
+    # :2:: 
+    # :3:: 
+    # :4:: 
+    # :5:: 
+    # :6:: 
+
+    return msg
+
+  async def show_stats(self, message):
+    user = message.author
+    if message.mentions:
+      user = message.mentions[0]
+
+    try:
+      stats = self.stats_tracker.get_stats(user.id)
+    except KeyError:
+      await self.warn_delete(f"No stats found for {user.mention}!", message)
+      return
+
+    embed = discord.Embed(type="rich",
+                          description=self.create_stat_message(stats),
+                          colour=discord.Colour.random())
+    embed.set_author(name=f"Stats for {user.name}#{user.discriminator}",
+                     icon_url=str(user.avatar_url))
+    await message.reply(embed=embed)
+
   async def on_message(self, message):
     if not self.channel:
       return
@@ -92,6 +143,8 @@ class Wordlo(discord.Client):
       await self.help(message)
     elif message.content.startswith(self.prefix + "wordlo"):
       await self.new_game(message)
+    elif message.content.startswith(self.prefix + "stats"):
+      await self.show_stats(message)
     elif message.content == f"{self.prefix}quit":
       await self.quit_game(message)
     elif message.content.startswith(self.prefix):
@@ -119,7 +172,7 @@ class Wordlo(discord.Client):
       return
 
     secret_word = self.word_basket.next_word(length)
-    game = Game(secret_word, self.counter.next_number(), users, length)
+    game = Game(secret_word, self.stats_tracker.next_number(self.guild.id), users, length)
 
     board_message = await self.print_board(game, message, None)
     for user in users:
@@ -151,6 +204,10 @@ class Wordlo(discord.Client):
     if not game.run_turn(word):
       for user in game.users:
         self.players.pop(user.id)
+        turn = 0
+        if game.won():
+          turn = game.board.turn()
+        self.stats_tracker.store_stats(user.id, turn)
     await self.print_board(game, message, board_message)
 
   async def quit_game(self, message):
@@ -162,6 +219,7 @@ class Wordlo(discord.Client):
     game, board_message = self.players[message.author.id]
     for user in game.users:
       self.players.pop(user.id)
+      self.stats_tracker.store_stats(user.id, 0)
     await self.print_board(game, message, board_message, aborted=True)
 
   async def print_board(self, game, message, board_message, aborted=False):
@@ -211,8 +269,7 @@ if __name__ == "__main__":
   parser.add_argument(
       "--word_basket", default="data/filtered_common_words.txt", help="The basket of secret words.")
   parser.add_argument(
-      "--counter_file", default="data/wordlo_count.txt",
-      help="The file containing the number of games played.")
+      "--database", default="data/test_stats.db", help="The database file for game stats.")
   args = parser.parse_args()
 
   with open(args.discord_token, "r") as token_file:
@@ -222,8 +279,8 @@ if __name__ == "__main__":
 
   dictionary = enchant.Dict("en_US")
 
-  counter = Counter(args.counter_file)
+  stats_tracker = StatsTracker(DbWrapper(args.database))
 
   intents = discord.Intents.default()
-  bot = Wordlo(intents, args.guild, args.channel, args.prefix, word_basket, dictionary, counter)
+  bot = Wordlo(intents, args.guild, args.channel, args.prefix, word_basket, dictionary, stats_tracker)
   bot.run(discord_token)

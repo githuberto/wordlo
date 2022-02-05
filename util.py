@@ -62,6 +62,9 @@ class Board:
     self.words[self.current] = guess
     self.current += 1
 
+  def turn(self):
+    return self.current + 1
+
   def full(self):
     return self.current == len(self.words)
 
