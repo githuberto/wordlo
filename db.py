@@ -106,6 +106,8 @@ def test_insert(db):
   db.insert("stats", (2, 3, 4, 5, 6, 7, 8, 9, 10, 11))
   db.insert("game_count", (69, 1))
 
+def fix_count(db):
+  db.update("game_count", ("guild_id", 696458628131061821), (("count", 280),))
 
 def main():
   parser = argparse.ArgumentParser()
@@ -120,6 +122,9 @@ def main():
     return
 
   db = DbWrapper(args.database)
+  fix_count(db)
+  return
+
   if args.generate_tables:
     generate_tables(db)
 

@@ -58,6 +58,8 @@ class Wordlo(discord.Client):
                 > Guess a word in an active game, e.g., `{self.prefix}horse`.
                 > :speech_balloon: `{self.prefix}quit`
                 > Abort an active game.
+                > :speech_balloon: `{self.prefix}stat [@Alice]`
+                > Display stats for yourself or the user you've mentioned.
                 > :speech_balloon: `{self.prefix}help`
                 > Display this help message.
                 > 
@@ -99,15 +101,9 @@ class Wordlo(discord.Client):
     }
     for i in range(1, 7):
       wins = stats[f"wins_{i}"]
-      blocks = round(10 * wins / stats["wins"])
+      blocks = round(10 * wins / stats["wins"]) if stats["wins"] else 0
       rows.append(f":{num_to_word[i]}: `({wins})`   {''.join(':green_square:' for _ in range(blocks))}")
     msg += "\n".join(rows)
-    # :1:: 
-    # :2:: 
-    # :3:: 
-    # :4:: 
-    # :5:: 
-    # :6:: 
 
     return msg
 
@@ -141,9 +137,9 @@ class Wordlo(discord.Client):
 
     if message.content == f"{self.prefix}help":
       await self.help(message)
-    elif message.content.startswith(self.prefix + "wordlo"):
+    elif message.content.startswith(f"{self.prefix}wordlo"):
       await self.new_game(message)
-    elif message.content.startswith(self.prefix + "stats"):
+    elif message.content == f"{self.prefix}stat" or message.content.startswith(f"{self.prefix}stat "):
       await self.show_stats(message)
     elif message.content == f"{self.prefix}quit":
       await self.quit_game(message)

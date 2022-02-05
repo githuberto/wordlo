@@ -63,7 +63,7 @@ class Board:
     self.current += 1
 
   def turn(self):
-    return self.current + 1
+    return self.current
 
   def full(self):
     return self.current == len(self.words)
