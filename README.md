@@ -17,6 +17,8 @@ Wordlo is a clone of the puzzle game [Wordle](https://www.powerlanguage.co.uk/wo
 
 `!quit` - Abort an active game.
 
+`!stat @Alice` - View stats for the pinged player.
+
 `!help` - Display this help message.
 
 ## How to Play
