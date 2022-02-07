@@ -99,13 +99,18 @@ class Wordlo(discord.Client):
         5: "five",
         6: "six"
     }
+
+    width = max(map(len, (str(stats[f"wins_{i}"]) for i in range(1, 7))))
+
     for i in range(1, 7):
       wins = stats[f"wins_{i}"]
       blocks = round(10 * wins / stats["wins"]) if stats["wins"] else 0
-      rows.append(f":{num_to_word[i]}: `({wins})`   {''.join(':green_square:' for _ in range(blocks))}")
+      rows.append(f":{num_to_word[i]}: `{'(' + str(wins) + ')':>{width+2}}`   {''.join(':green_square:' for _ in range(blocks))}")
     msg += "\n".join(rows)
 
-    return msg
+    # Trim spaces.
+    stripped_message = "\n".join(l.strip() for l in msg.split("\n"))
+    return stripped_message
 
   async def show_stats(self, message):
     user = message.author
@@ -135,7 +140,7 @@ class Wordlo(discord.Client):
     if message.channel.id != self.channel.id:
       return
 
-    if not message.startswith(self.prefix):
+    if not message.content.startswith(self.prefix):
       return
 
     command = message.content.strip()
