@@ -135,15 +135,19 @@ class Wordlo(discord.Client):
     if message.channel.id != self.channel.id:
       return
 
-    if message.content == f"{self.prefix}help":
+    if not message.startswith(self.prefix):
+      return
+
+    command = message.content.strip()
+    if command == f"{self.prefix}help":
       await self.help(message)
-    elif message.content.startswith(f"{self.prefix}wordlo"):
+    elif command.startswith(f"{self.prefix}wordlo"):
       await self.new_game(message)
-    elif message.content == f"{self.prefix}stat" or message.content.startswith(f"{self.prefix}stat "):
+    elif command == f"{self.prefix}stat" or command.startswith(f"{self.prefix}stat "):
       await self.show_stats(message)
-    elif message.content == f"{self.prefix}quit":
+    elif command == f"{self.prefix}quit":
       await self.quit_game(message)
-    elif message.content.startswith(self.prefix):
+    elif command.startswith(self.prefix):
       await self.next_turn(message)
 
   async def new_game(self, message):
