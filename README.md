@@ -2,7 +2,7 @@
 
 Wordlo is a clone of the puzzle game [Wordle](https://www.powerlanguage.co.uk/wordle/).
 
-![Screenshot](screenshot.png)
+![Screenshot](img/screenshot.png)
 
 ## Commands:
 `!wordlo` - Start a singleplayer game.
