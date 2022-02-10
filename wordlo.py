@@ -234,7 +234,6 @@ class Wordlo(discord.Client):
     embed.set_author(name=f"Game #{game.game_number()}",
                      icon_url=str(message.author.avatar_url))
     names = ", ".join(user.mention for user in game.users)
-    # embed.title = f"Players: {names}"
     player_names = f"Players: {names}\n"
     footer = ""
     if aborted:
@@ -281,10 +280,12 @@ if __name__ == "__main__":
     discord_token = token_file.read().strip()
 
   word_basket = WordBasket(args.word_basket)
+  print(f"Reading secret words from {args.word_basket}")
 
   dictionary = enchant.Dict("en_US")
 
   stats_tracker = StatsTracker(DbWrapper(args.database))
+  print(f"Reading stats database from {args.database}.")
 
   intents = discord.Intents.default()
   bot = Wordlo(intents, args.guild, args.channel, args.prefix, word_basket, dictionary, stats_tracker)
