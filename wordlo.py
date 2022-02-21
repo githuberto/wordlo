@@ -3,7 +3,9 @@ import argparse
 import discord
 import asyncio
 import enchant
-from util import Game, WordBasket
+import util
+import string
+
 from stats_tracker import StatsTracker
 from db import DbWrapper
 
@@ -177,7 +179,7 @@ class Wordlo(discord.Client):
       return
 
     secret_word = self.word_basket.next_word(length)
-    game = Game(secret_word, self.stats_tracker.next_number(self.guild.id), users, length)
+    game = util.Game(secret_word, self.stats_tracker.next_number(self.guild.id), users, length)
 
     board_message = await self.print_board(game, message, None)
     for user in users:
@@ -228,8 +230,12 @@ class Wordlo(discord.Client):
     await self.print_board(game, message, board_message, aborted=True)
 
   async def print_board(self, game, message, board_message, aborted=False):
+    board_content = game.print_board()
+    if game.show_unguessed:
+      board_content += "\n**Unguessed letters:\n**"
+      board_content += util.format_letters(game.guessed_letters)
     embed = discord.Embed(type="rich",
-                          description=game.print_board(),
+                          description=board_content,
                           colour=discord.Colour.random())
     embed.set_author(name=f"Game #{game.game_number()}",
                      icon_url=str(message.author.avatar_url))
@@ -279,7 +285,7 @@ if __name__ == "__main__":
   with open(args.discord_token, "r") as token_file:
     discord_token = token_file.read().strip()
 
-  word_basket = WordBasket(args.word_basket)
+  word_basket = util.WordBasket(args.word_basket)
   print(f"Reading secret words from {args.word_basket}")
 
   dictionary = enchant.Dict("en_US")

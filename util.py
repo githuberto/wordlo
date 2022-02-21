@@ -14,6 +14,18 @@ def emojify(c):
   return ":blue_square:"
 
 
+def format_letters(guessed_letters, width=5):
+  print(f"guessed_letters: {guessed_letters}")
+
+  remaining_letters = tuple(filter(lambda c: c not in guessed_letters, string.ascii_lowercase))
+  print(f"remaining: {remaining_letters}")
+
+  grid = [[c for c in remaining_letters[i:i+width]] for i in range(0, len(remaining_letters), width)]
+  print(f"grid: {grid}")
+
+  return "\n".join("".join(util.emojify(c) for c in line) for line in grid)
+
+
 class Counter:
   def __init__(self, count_file):
     print(f"Using count file {count_file}.")
@@ -84,11 +96,15 @@ class Game:
     self.has_won = False
     self.has_lost = False
     self.length = length
+    self.guessed_letters = set()
+    # To be enabled later... maybe.
+    self.show_unguessed = False
 
   def game_number(self):
     return self.number
 
   def run_turn(self, guess):
+    self.guessed_letters.update(*guess)
     self.board.add_guess(guess)
 
     if guess == self.secret_word:
