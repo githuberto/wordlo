@@ -15,13 +15,11 @@ def emojify(c):
 
 
 def format_letters(guessed_letters, width=5):
-  print(f"guessed_letters: {guessed_letters}")
+  remaining_letters = tuple(filter(lambda c: c not in guessed_letters,
+                                   string.ascii_lowercase))
 
-  remaining_letters = tuple(filter(lambda c: c not in guessed_letters, string.ascii_lowercase))
-  print(f"remaining: {remaining_letters}")
-
-  grid = [[c for c in remaining_letters[i:i+width]] for i in range(0, len(remaining_letters), width)]
-  print(f"grid: {grid}")
+  grid = [[c for c in remaining_letters[i:i+width]]
+           for i in range(0, len(remaining_letters), width)]
 
   return "\n".join("".join(util.emojify(c) for c in line) for line in grid)
 

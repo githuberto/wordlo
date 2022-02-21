@@ -18,7 +18,8 @@ PENSIVE_EMOJI="😔"
 
 
 class Wordlo(discord.Client):
-  def __init__(self, intents, guild_name, channel_name, prefix, word_basket, dictionary, stats_tracker):
+  def __init__(self, intents, guild_name, channel_name, prefix, word_basket,
+               dictionary, stats_tracker):
     super(Wordlo, self).__init__(intents=intents)
     self.players = {}
     self.prefix = prefix
@@ -163,7 +164,8 @@ class Wordlo(discord.Client):
     if len(tokens) > 1 and tokens[1].isdigit():
       length = int(tokens[1])
       if length < 5 or length > 8:
-        await self.warn_delete("Length must be within the range of 5-8 letters.", message)
+        await self.warn_delete(
+            "Length must be within the range of 5-8 letters.", message)
         return
 
     users = {user for user in message.mentions}
@@ -179,7 +181,8 @@ class Wordlo(discord.Client):
       return
 
     secret_word = self.word_basket.next_word(length)
-    game = util.Game(secret_word, self.stats_tracker.next_number(self.guild.id), users, length)
+    game = util.Game(secret_word, self.stats_tracker.next_number(self.guild.id),
+                     users, length)
 
     board_message = await self.print_board(game, message, None)
     for user in users:
@@ -199,7 +202,8 @@ class Wordlo(discord.Client):
 
     word = message.content[1:].lower()
     if len(word) != game.length:
-      await self.warn_delete(f"Your word must be exactly {game.length} letters long!", message)
+      await self.warn_delete(
+          f"Your word must be exactly {game.length} letters long!", message)
       return
 
     if not dictionary.check(word) and not self.word_basket.check(word):
@@ -273,13 +277,16 @@ if __name__ == "__main__":
   parser.add_argument(
       "--guild", default="yobots", help="The guild the bot should be active in.")
   parser.add_argument(
-      "--channel", default="general", help="The channel the bot should be active in.")
+      "--channel", default="general",
+      help="The channel the bot should be active in.")
   parser.add_argument(
       "--prefix", default="!", help="The channel for bot readings.")
   parser.add_argument(
-      "--word_basket", default="data/filtered_common_words.txt", help="The basket of secret words.")
+      "--word_basket", default="data/filtered_common_words.txt",
+      help="The basket of secret words.")
   parser.add_argument(
-      "--database", default="data/test_stats.db", help="The database file for game stats.")
+      "--database", default="data/test_stats.db",
+      help="The database file for game stats.")
   args = parser.parse_args()
 
   with open(args.discord_token, "r") as token_file:
@@ -294,5 +301,6 @@ if __name__ == "__main__":
   print(f"Reading stats database from {args.database}.")
 
   intents = discord.Intents.default()
-  bot = Wordlo(intents, args.guild, args.channel, args.prefix, word_basket, dictionary, stats_tracker)
+  bot = Wordlo(intents, args.guild, args.channel, args.prefix, word_basket,
+               dictionary, stats_tracker)
   bot.run(discord_token)
